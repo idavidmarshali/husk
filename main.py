@@ -89,7 +89,7 @@ async def on_command_error(message :discord.message, error):
 
 
 
-
+@commands.is_owner()
 @bot.command()
 async def set_mood(ctx, inpmood: str):
     global mood
