@@ -18,7 +18,19 @@ status = cycle([f'{prefix}help','Baby Shark do do..','Boty Shark do do..','ха-
 bot = commands.Bot(command_prefix=prefix, intents=intents, case_insensitive=True)
 bot.remove_command('help')
 
-
+moods = {
+    "joy": ac.Emotion.joy,
+    "anger": ac.Emotion.anger,
+    "angry": ac.Emotion.angry,
+    "fear": ac.Emotion.fear,
+    "sad": ac.Emotion.sad,
+    "sadness": ac.Emotion.sadness,
+    "happy": ac.Emotion.happy,
+    "neutral": ac.Emotion.neutral,
+    "normal": ac.Emotion.normal,
+    "scared": ac.Emotion.scared
+}
+mood = moods["normal"]
 @bot.event
 async def on_ready():
     status_update.start()
@@ -30,11 +42,11 @@ async def on_message(message):
     if message.content.lower().startswith("husk") and len(message.content[0:4]) > 3:
         cb = ac.Cleverbot("s<&wv.@K@k/Yne(Bj<:E")
         async with message.channel.typing():
-            respond = await cb.ask(message.content[4:])
+            respond = await cb.ask(message.content[4:], emotion=mood)
             await message.channel.send(f"**HUSK** : `{respond.text}`")
             if respond.text.endswith("?"):
                 res = await bot.wait_for("message", check=check(message.author), timeout=10)
-                respond = await cb.ask(res.content)
+                respond = await cb.ask(res.content, emotion=mood)
                 await message.channel.send(f"**HUSK** : `{respond.text}`")
             await cb.close()
     await bot.process_commands(message)
@@ -78,8 +90,14 @@ async def on_command_error(message :discord.message, error):
 
 
 
-
-
+@bot.command()
+async def set_mood(ctx, inpmood: str):
+    global mood
+    try:
+        mood = moods[inpmood]
+        await ctx.send(f"**Done!, mood set to `{inpmood}`**", delete_after=5)
+    except:
+        await ctx.send("**Wrong Mood Given**", delete_after=5)
 
 # COMMAND ZONE ----------↴
 @bot.command()
