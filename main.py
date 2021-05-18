@@ -6,6 +6,10 @@ import json
 import os
 import time
 import discord.utils
+import discord
+import aiohttp
+import async_cleverbot as ac
+from cogs.maincommands import check
 import traceback
 
 intents = discord.Intents().all()
@@ -21,6 +25,20 @@ async def on_ready():
     print('The bot has logged in as {0.user}\n-------------------↴'.format(bot))
 
 # EVENT ZONE ----------↴
+@bot.event
+async def on_message(message):
+    if message.content.lower().startswith("husk") and len(message.content[0:4]) > 3:
+        cb = ac.Cleverbot("s<&wv.@K@k/Yne(Bj<:E")
+        async with message.channel.typing():
+            respond = await cb.ask(message.content[4:])
+            await message.channel.send(f"**HUSK** : `{respond.text}`")
+            if respond.text.endswith("?"):
+                res = await bot.wait_for("message", check=check(message.author), timeout=10)
+                respond = await cb.ask(res.content)
+                await message.channel.send(f"**HUSK** : `{respond.text}`")
+            await cb.close()
+    await bot.process_commands(message)
+
 
 #######################
 # main error handler #
