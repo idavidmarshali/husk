@@ -94,7 +94,7 @@ class Maincommands(commands.Cog):
 
     @commands.command()
     async def ping(self, message):
-        await message.reply(f"**BOTs ping is :** `{self.bot.latency.__round__() * 10000}`")
+        await message.reply(f"**BOTs ping is :** `{int(self.bot.latency * 10000)}`")
     @commands.has_guild_permissions(manage_messages=True)
     @commands.command(aliases=['del', 'clear', 'delete', 'clearchat', 'cl'])
     async def chatclear(self, message, arg=5):
