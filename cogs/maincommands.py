@@ -69,7 +69,7 @@ def from_hex(str: str):
 
 class Maincommands(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: commands.Bot = bot
     # Command zone------------↴
     @commands.has_guild_permissions(move_members=True)
     @commands.command()
@@ -92,6 +92,9 @@ class Maincommands(commands.Cog):
         embed.add_field(name="Target Channel :", value=f"`{message.author.voice.channel}`")
         await message.send(embed=embed)
 
+    @commands.command()
+    async def ping(self, message):
+        await message.reply(f"**BOTs ping is :** `{self.bot.latency.__round__() * 10000}`")
     @commands.has_guild_permissions(manage_messages=True)
     @commands.command(aliases=['del', 'clear', 'delete', 'clearchat', 'cl'])
     async def chatclear(self, message, arg=5):
