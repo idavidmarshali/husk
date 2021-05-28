@@ -12,7 +12,7 @@ def user_check(user: discord.Member):
         return user.mention
 
 
-class precreatedgifs(commands.Cog):
+class GifCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     #cat - dog - kiss - spank - lick - smile - greet - sleep - slap - cuddle
@@ -249,4 +249,4 @@ class precreatedgifs(commands.Cog):
                 content=f'**ERROR** | `🛑` `Something wet wrong, try again. Respond-Code :{r.status_code}`',
                 delete_after=5)
 def setup(bot):
-    bot.add_cog(precreatedgifs(bot))
+    bot.add_cog(GifCommands(bot))
