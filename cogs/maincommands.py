@@ -420,29 +420,11 @@ class Maincommands(commands.Cog):
                          delete_after=5)
             await asyncio.sleep(3)
             await first_reply.delete()
-    @commands.command()
-    async def chaeyoung(self,message):
-        if message.author.id == 467172810540843035:
-            r = requests.api.get(f'https://meme-api.herokuapp.com/gimme/chaeyoung/3').json()
-            z = []
-            for x in r['memes']:
-                z.append(f'{x["url"]}')
-            embed = discord.Embed(title=discord.Embed.Empty,description="----------------------------------\n"
-                                                                        "----------------------------------\n"
-                                                                        "----------------------------------\n"
-                                                                        "----------------------------------\n"
-                                                                        "----------------------------------\n"
-                                                                        "----------------------------------\n")
-            embed.set_image(url=z[0])
-            embed.set_thumbnail(url=z[1])
-            await message.send(embed=embed)
-        else:
-            raise commands.MissingPermissions(["Chaeyoung's husband"])
-
+    
     @commands.command()
     async def gif(self, message, *,search_query):
         first_msg = await message.send('**Retriving data**')
-        apikey = "BYONSOOTKGT4"
+        apikey = ""
         lmt = 50
         r = requests.get("https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" % (search_query, apikey, lmt))
         if r.status_code == 200:
