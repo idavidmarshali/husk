@@ -10,9 +10,8 @@ __**Updates**__:
 6. The clear command can now take an optional member arg for check and its now menu based with confirmation.
 7. The problem with the cuddle command has been fixed.
 8. Husk now answers to users questions thanks to `celverbot api`
-9. Added compiled python files for future use.
-10. Move all command has become better in terms of error raising and member fetching.
-11. added an SDK file for easier usage.
+9. Move all command has become better in terms of error raising and member fetching.
+10. added an SDK file for easier usage.
 
 # Notes:
 `bot is not using the stable version of d.py 1.6.0! its using a unstable clone from the master branch, its not recommended to use the master branch.`
