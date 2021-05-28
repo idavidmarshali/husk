@@ -24,7 +24,7 @@ some of the things that are going to be added up to the version 3.0
 2. Full menu based bot configuration using the early version of `discord.Buttons`
 3. refactoring the helpcommand to be more `Cat` based.
 4. adding an `RolePlay` type game like `Mafia`.
-5. [This is ridiculous] but using `discord.Buttons` to control an `gameboy emulator` via twitch
+5. [This is ridiculous] but using `discord.Buttons` to control a `gameboy emulator` via twitch
 and many more..
 so stay tuned :)
 
