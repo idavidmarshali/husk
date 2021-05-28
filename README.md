@@ -12,6 +12,7 @@ __**Updates**__:
 8. Husk now answers to users questions thanks to `celverbot api`
 9. Move all command has become better in terms of error raising and member fetching.
 10. added an SDK file for easier usage.
+11. added functionality to the about command.
 
 # Notes:
 `bot is not using the stable version of d.py 1.6.0! its using a unstable clone from the master branch, its not recommended to use the master branch.`
