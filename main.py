@@ -9,8 +9,8 @@ config = husk_sdk.BotConfig("bot.json")
 config.Load()
 intents = discord.Intents().all()
 prefix = '!!'
-status = cycle([f'{prefix}help', 'Baby Shark do do..', 'Boty Shark do do..',
-                'ха-ха, я заставил тебя перевести на русский'])
+status = cycle([f'{prefix}help', f'Version 2.0 Is Up', f'{prefix}Update to see it!',
+                'Im UPDATED, Yaaaay!'])
 bot = commands.Bot(command_prefix=prefix, intents=intents, case_insensitive=True,
                    help_command=husk_sdk.HelpCommand())
 
@@ -31,9 +31,7 @@ mood = moods["normal"]
 
 @bot.event
 async def on_ready():
-    # status_update.start()
-    await bot.change_presence(
-        activity=discord.Activity(type=discord.ActivityType.playing, name="down for maintenance!"))
+    status_update.start()
     print('The bot has logged in as {0.user}\n-------------------↴'.format(bot))
 
 
