@@ -25,3 +25,7 @@ Slash commands can currently *only* be used in guilds : `555067760703569960,8015
 5. minor changes to some commands.
 
 6. Took out the tenor api token from the bots `gifs.py` cog XD
+
+
+It might be a bit unstable though cause of the whole slash commands but meh.. :/
+-----------
