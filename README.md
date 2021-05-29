@@ -1,5 +1,5 @@
 
-# husk discord Bot - Master Branch V2.0
+# husk discord Bot -  V2.0
 
 __**Updates**__:
 1. Change in the maincommand `error_handler` (More efficient and it looks better)
