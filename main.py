@@ -108,4 +108,4 @@ for file in os.listdir('./cogs'):
     if file.endswith('.py'):
         bot.load_extension(f'cogs.{file[:-3]}')
 
-bot.run("ODEwNTk0Nzc0MTUxMjAwNzk4.YCl7Ng.EVE2m3UadCfPtKU0-WdCsvoC5jg")
+bot.run(config.token)
