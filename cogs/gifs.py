@@ -1,10 +1,8 @@
-import discord
+import discord, json, requests, random
 from discord.ext import commands
-import requests
-import random
-import json
-
-
+from sdk import husk_sdk
+config = husk_sdk.BotConfig("./bot.json")
+config.Load()
 def user_check(user: discord.Member):
     if user is None:
         return "The air"
@@ -19,7 +17,7 @@ class GifCommands(commands.Cog):
     @commands.command()
     async def cat(self, message):
         first_msg = await message.send('**Retriving data**')
-        apikey = "BYONSOOTKGT4"
+        apikey = config.gif_apikey
         lmt = 50
         r = requests.get("https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" % ('cat', apikey, lmt))
         if r.status_code == 200:
@@ -44,7 +42,7 @@ class GifCommands(commands.Cog):
     @commands.command()
     async def dog(self, message):
         first_msg = await message.send('**Retriving data**')
-        apikey = "BYONSOOTKGT4"
+        apikey = config.gif_apikey
         lmt = 50
         r = requests.get("https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" % ('Dog', apikey, lmt))
         if r.status_code == 200:
@@ -69,7 +67,7 @@ class GifCommands(commands.Cog):
     @commands.command()
     async def kiss(self, message, user :discord.Member=None):
         first_msg = await message.send('**Retriving data**')
-        apikey = "BYONSOOTKGT4"
+        apikey = config.gif_apikey
         lmt = 50
         r = requests.get("https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" % ('anime_kiss', apikey, lmt))
         if r.status_code == 200:
@@ -91,7 +89,7 @@ class GifCommands(commands.Cog):
     @commands.command()
     async def slap(self, message, user: discord.Member = None):
         first_msg = await message.send('**Retriving data**')
-        apikey = "BYONSOOTKGT4"
+        apikey = config.gif_apikey
         lmt = 50
         r = requests.get("https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" % ('anime slap', apikey, lmt))
         if r.status_code == 200:
@@ -114,7 +112,7 @@ class GifCommands(commands.Cog):
     @commands.command()
     async def sleep(self, message):
         first_msg = await message.send('**Retriving data**')
-        apikey = "BYONSOOTKGT4"
+        apikey = config.gif_apikey
         lmt = 50
         r = requests.get("https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" % ('anime_kiss', apikey, lmt))
         if r.status_code == 200:
@@ -137,7 +135,7 @@ class GifCommands(commands.Cog):
     @commands.command()
     async def spank(self, message, user: discord.Member = None):
         first_msg = await message.send('**Retriving data**')
-        apikey = "BYONSOOTKGT4"
+        apikey = config.gif_apikey
         lmt = 50
         r = requests.get("https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" % ('anime spank', apikey, lmt))
         if r.status_code == 200:
@@ -160,7 +158,7 @@ class GifCommands(commands.Cog):
     @commands.command()
     async def greet(self, message, user: discord.Member = None):
         first_msg = await message.send('**Retriving data**')
-        apikey = "BYONSOOTKGT4"
+        apikey = config.gif_apikey
         lmt = 50
         r = requests.get("https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" % ('aime greeting', apikey, lmt))
         if r.status_code == 200:
@@ -183,7 +181,7 @@ class GifCommands(commands.Cog):
     @commands.command()
     async def smile(self, message, user: discord.Member = None):
         first_msg = await message.send('**Retriving data**')
-        apikey = "BYONSOOTKGT4"
+        apikey = config.gif_apikey
         lmt = 50
         r = requests.get("https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" % ('anime smile', apikey, lmt))
         if r.status_code == 200:
@@ -206,7 +204,7 @@ class GifCommands(commands.Cog):
     @commands.command()
     async def lick(self, message, user: discord.Member = None):
         first_msg = await message.send('**Retriving data**')
-        apikey = "BYONSOOTKGT4"
+        apikey = config.gif_apikey
         lmt = 50
         r = requests.get("https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" % ('anime lick', apikey, lmt))
         if r.status_code == 200:
@@ -229,7 +227,7 @@ class GifCommands(commands.Cog):
     @commands.command()
     async def cuddle(self, message, user: discord.Member = None):
         first_msg = await message.send('**Retriving data**')
-        apikey = "BYONSOOTKGT4"
+        apikey = config.gif_apikey
         lmt = 50
         r = requests.get("https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" % ('anime cuddle', apikey, lmt))
         if r.status_code == 200:

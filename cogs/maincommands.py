@@ -108,7 +108,7 @@ class MainCommands(commands.Cog):
         embed.set_footer(text=embeddf.footer, icon_url=embeddf.footer_icon)
         embed.add_field(name="`Account Specific Detail`**:**",
                         value=f"""```Account Created in : {user.created_at.strftime('%Y-%m-%d')}
-Animated Profile Avatar? : {'Yes' if user.is_avatar_animated() else 'No'}
+Animated Profile Avatar? : {'Yes' if user.avatar.is_animated() else 'No'}
 is a Bot? : {'Yes' if user.bot else 'No'}
 Default Avatar Color : {user.default_avatar}
 Current Activity : {member.activity.name if member.activity is not None else 'Nothing'}
@@ -120,7 +120,7 @@ NickName : {'None' if member.nick is None else member.nick}
 joined the server at : {member.joined_at.strftime("%Y-%m-%d")}
 Top Role : {member.top_role.name}
 Is Boosting the server? : {'Yes' if member.premium_since is not None else 'No'}
-Server Roles : {"-".join([role.name for role in member.roles])}
+Server Roles : {"-".join([role.name for role in member.roles if role.name != "@everyone"])}
 is Server Owner : {'Yes' if member == ctx.guild.owner else 'No'}
                         ```""",
                         inline=False)

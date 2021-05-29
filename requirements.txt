@@ -3,3 +3,4 @@ requests
 webcolors
 async_cleverbot
 git+https://github.com/Rapptz/discord-ext-menus
+discord-py-slash-command

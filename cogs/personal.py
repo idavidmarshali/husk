@@ -8,6 +8,7 @@ class PersonalCommands(commands.Cog):
 
         @commands.command(hidden=True)
         async def chaeyoung(self, message):
+
             if message.author.id == 467172810540843035:
                 r = requests.api.get(f'https://meme-api.herokuapp.com/gimme/chaeyoung/3').json()
                 z = []

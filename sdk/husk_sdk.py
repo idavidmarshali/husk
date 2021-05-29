@@ -22,6 +22,14 @@ def vc_checker():
     return commands.check(predict)
 
 
+def getgifs():
+    """
+    returs a list of available emojies for /gif command
+    :return:
+    """
+    return "cat-dog-kiss-spank-lick-smile-greet-sleep-slap-cuddle".split("-")
+
+
 async def call_CeleverBot(message, bot, mood) -> None:
     """
     Api Caller for CleverBot Api!
@@ -249,6 +257,7 @@ class BotConfig(object):
         self.name = ""
         self.prefix = ""
         self.gif_apikey = ""
+        self.slashguilds = []
 
     def Load(self):
         """
@@ -262,6 +271,7 @@ class BotConfig(object):
             self.name = data["name"]
             self.gif_apikey = data["gif_api"]
             self.version = data["version"]
+            self.slashguilds = data["slashguilds"]
 
 
 class HexMenu(menus.Menu):

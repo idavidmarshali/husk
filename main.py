@@ -3,17 +3,17 @@ from itertools import cycle
 import discord.utils, discord, os
 from sdk import husk_sdk
 import async_cleverbot as ac
-
+from discord_slash import SlashCommand
 
 config = husk_sdk.BotConfig("bot.json")
 config.Load()
 intents = discord.Intents().all()
 prefix = '!!'
 status = cycle([f'{prefix}help', f'Version 2.0 Is Up', f'{prefix}Update to see it!',
-                'Im UPDATED, Yaaaay!'])
+                'Im UPDATED, Yaaaay!', 'slash commands are here!!'])
 bot = commands.Bot(command_prefix=prefix, intents=intents, case_insensitive=True,
                    help_command=husk_sdk.HelpCommand())
-
+slash = SlashCommand(bot, sync_commands=True, sync_on_cog_reload=True)
 moods = {
     "joy": ac.Emotion.joy,
     "anger": ac.Emotion.anger,
@@ -97,7 +97,7 @@ async def set_mood(ctx, inpmood: str):
         await ctx.send("**Wrong Mood Given**", delete_after=5)
 
 # LOOP ZONE ----------↴
-@tasks.loop(minutes=5)
+@tasks.loop(minutes=2)
 async def status_update():
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=status.__next__(),
                                                         url='https://discord.gg/Pr6qtxSUve'))
@@ -108,4 +108,4 @@ for file in os.listdir('./cogs'):
     if file.endswith('.py'):
         bot.load_extension(f'cogs.{file[:-3]}')
 
-bot.run(config.token)
+bot.run("ODEwNTk0Nzc0MTUxMjAwNzk4.YCl7Ng.EVE2m3UadCfPtKU0-WdCsvoC5jg")
