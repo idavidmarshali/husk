@@ -1,0 +1,24 @@
+Genral change : Added slash commands in cogs/slashcommands.py
+Slash commands can currently only be used in guilds : 555067760703569960,801555851188895774
+
+New SlashCommands are :
+/hentai optional[hidden?]
+/check user:onion[discord.User, discord.Member]
+/moveall
+/muteall
+/unmuteall
+/clear amount optional[user]
+/gif category
+--------------
+
+1. changed the check command so now it wont show guild.default_role as one of the members roles
+
+2. changed the unmuteall command so now it ignores the ctx.author
+
+3. added getgifs func to the sdk cause im lazy :/
+
+4. added slashguilds parameter to BotConfig() and bot.json
+
+5. minor changes to some commands.
+
+6. Took out the tenor api token from the bots gifs.py cog XD
