@@ -1,11 +1,14 @@
 from discord.ext import commands, menus
-import discord, json, binascii, asyncio
+import discord, json, binascii, asyncio, random
 import async_cleverbot as ac
+from discord_components import ButtonStyle, Button, Interaction
+import asyncio
 
 
 # ///////////////////////
 # Function Section ///
-# /////////////////////
+# ////////////////////
+
 def vc_checker():
     """
     checks if the message.author is in a voicechannel or not.
@@ -76,6 +79,43 @@ class OverTheLimit(commands.BadArgument):
 # ////////////////////////////
 # Object(Class) Section ///
 # //////////////////////////
+class MemoryGame():
+    """
+    BETA - DO NOT USE THIS YET
+    """
+    @classmethod
+    def randomComponentGenrator(self, add=1, before=[]):
+        for i in range(0, add):
+            row = random.randint(0, 4)
+            index = random.randint(0, 4)
+            if before[row][index].style != ButtonStyle.red and before[row][index].style != ButtonStyle.green:
+                before[row][index] = Button(emoji="🟥", style=ButtonStyle.red)
+            else:
+                row = random.randint(0, 4)
+                index = random.randint(0, 4)
+                before[row][index] = Button(emoji="🟥", style=ButtonStyle.red)
+    @classmethod
+    def defaultComponents(self):
+        last_row = [Button(emoji="🟦", style=ButtonStyle.blue) for _ in range(3)]
+        last_row.append(Button(label="Submit", style=ButtonStyle.green))
+        last_row.append(Button(label="Exit", style=ButtonStyle.red))
+        return [
+            [Button(emoji="🟦", style=ButtonStyle.blue) for _ in range(5)],
+            [Button(emoji="🟦", style=ButtonStyle.blue) for _ in range(5)],
+            [Button(emoji="🟦", style=ButtonStyle.blue) for _ in range(5)],
+            [Button(emoji="🟦", style=ButtonStyle.blue) for _ in range(5)],
+            last_row
+        ]
+    @classmethod
+    def getRedButton(cls, componentList: list):
+        all_buttons = []
+        for actionRow in componentList:
+            for button in actionRow:
+                all_buttons.append((componentList.index(actionRow), actionRow.index(button)))
+        return all_buttons
+
+
+
 class HelpCommand(commands.HelpCommand):
     """
     a custom Help command based on the default d.py HelpCommand for automated command adding
@@ -90,7 +130,7 @@ class HelpCommand(commands.HelpCommand):
             super().__init__(delete_message_after=True)
             self.commandList: list = command_list
             self.helpObject: commands.HelpCommand = helpObject
-            self.pagelimit = 3 # limit to amount of commands in one menu page
+            self.pagelimit = 3  # limit to amount of commands in one menu page
 
         def formats(self):
             dict = {1: []}
@@ -103,8 +143,8 @@ class HelpCommand(commands.HelpCommand):
                     dict[page] = [command]
             return dict
 
-        async def send_initial_message(self, ctx: commands.Context, channel: discord.TextChannel):
-            self.embed = discord.Embed(title="__**HELP COMMAND**__")
+        async def send_initial_message(self, ctx, channel):
+            self.embed = discord.Embed(title="__**HELP COMMAND**__", colour=discord.Color.random())
             self.dict = self.formats()
             self.pages = len(self.dict.keys())
             self.currentpage = 1
@@ -113,42 +153,41 @@ class HelpCommand(commands.HelpCommand):
              for command in self.dict[self.currentpage]]
             embeddf = DefaultEmbed("Help", self.ctx)
             self.embed.set_footer(text=embeddf.footer, icon_url=embeddf.footer_icon)
-            return await channel.send(embed=self.embed)
+            self.message = await ctx.send(embed=self.embed, components=[
+                [Button(label="Previous", style=ButtonStyle.blue), Button(label="Next", style=ButtonStyle.blue),
+                 Button(label="Exit", style=ButtonStyle.gray)]])
+            while True:
+                respond = await self.bot.wait_for("button_click", check=lambda inter: inter.user == self.ctx.author,
+                                                  timeout=20)
+                await respond.respond(type=6)
+                if respond.component.label == "Previous":
+                    if self.currentpage >= 2:
+                        self.currentpage -= 1
+                        self.embed.clear_fields()
+                        [self.embed.add_field(inline=False, name=f"`{command.name}`",
+                                              value=f"```css\n[{self.helpObject.clean_prefix}{command.name} {command.signature}]\ndescription: {command.brief}```\n")
+                         for command in self.dict[self.currentpage]]
+                        await self.message.edit(embed=self.embed)
+                    await respond.respond(type=6)
+                elif respond.component.label == "Next":
+                    if self.currentpage <= self.pages:
+                        self.currentpage += 1
+                        self.embed.clear_fields()
+                        [self.embed.add_field(inline=False, name=f"`{command.name}`",
+                                              value=f"```css\n[{self.helpObject.clean_prefix}{command.name} {command.signature}]\ndescription: {command.brief}```\n")
+                         for command in self.dict[self.currentpage]]
+                        await self.message.edit(embed=self.embed)
+                elif respond.component.label == "Exit":
+                    await self.message.edit(embed=DefaultEmbed.close(), components=[], delete_after=10)
+                    await self.ctx.message.delete()
 
-        @menus.button("◀")
-        async def on_backward(self, payload):
-            if self.currentpage >= 2:
-                self.currentpage -= 1
-                self.embed.clear_fields()
-                [self.embed.add_field(inline=False, name=f"`{command.name}`",
-                                      value=f"```css\n[{self.helpObject.clean_prefix}{command.name} {command.signature}]\ndescription: {command.brief}```\n")
-                 for command in self.dict[self.currentpage]]
-                await self.message.edit(embed=self.embed)
-
-
-        @menus.button("▶")
-        async def on_forward(self, payload):
-            if self.currentpage <= self.pages:
-                self.currentpage += 1
-                self.embed.clear_fields()
-                [self.embed.add_field(inline=False, name=f"`{command.name}`",
-                                      value=f"```css\n[{self.helpObject.clean_prefix}{command.name} {command.signature}]\ndescription: {command.brief}```\n")
-                 for command in self.dict[self.currentpage]]
-                await self.message.edit(embed=self.embed)
-
-
-        @menus.button("❌")
-        async def on_close(self, payload):
-            await self.message.edit(content="**MENU Closed!**", embed=None)
-            await self.message.clear_reactions()
-            await asyncio.sleep(5)
-            await self.ctx.message.delete()
-            await self.stop()
+                    break
+            return None
 
     async def send_bot_help(self, mapping):
         commanndsl = [command for commands in [commandlist for cog, commandlist in mapping.items() if
-                                                 getattr(cog, 'qualified_name', 'None') != "GifCommands"] for command in
-                        commands]
+                                               getattr(cog, 'qualified_name', 'None') != "GifCommands"] for command in
+                      commands]
         commanndsl.sort(key=lambda command: command.name)
         menu = self.HelpMenu(commanndsl, self)
         await menu.start(ctx=self.context)
@@ -173,38 +212,100 @@ class ClMenu(menus.Menu):
                                           f"[{ctx.channel.name}] ?```" if self.target is not None else
                               f"```css\nAre You sure you want to delete "
                               f"[{self.limit}] Messages in "
-                              f"[{ctx.channel.name}] ?```\n✅- **Approve**\n❌- **Reject**")
+                              f"[{ctx.channel.name}] ?```")
         embed.set_footer(text=embeddf.footer, icon_url=embeddf.footer_icon)
         self.embed = embed
-        return await ctx.send(embed=embed)
+        self.message = await ctx.send(embed=embed, components=[
+            [Button(label="Approve", style=ButtonStyle.green), Button(label="Reject", style=ButtonStyle.red)]])
 
-    @menus.button("✅")
-    async def on_approve(self, payload):
-        def check(message: discord.Message):
-            if self.target is not None:
-                return (self.target == message.author) and (self.message.id != message.id)
-            else:
-                return self.message.id != message.id
+        respond: Interaction = await self.bot.wait_for("button_click",
+                                                       check=lambda inter: inter.user == self.ctx.author, timeout=20)
+        await respond.respond(type=6)
+        if respond.component.label == "Approve":
+            def check(message: discord.Message):
+                if self.target is not None:
+                    return (self.target == message.author) and (self.message.id != message.id)
+                else:
+                    return self.message.id != message.id
 
-        await self.ctx.channel.purge(limit=self.limit, check=check)
-        self.embed.colour = discord.Color.green()
-        self.embed.title = f"**DONE :-)**"
-        self.embed.description = f"```dif\nThe Amount of {self.limit} messages have been purged from" \
-                                 f" {self.ctx.channel.name}```" \
-            if self.target is None else f"```dif\nThe Amount of {self.limit} messages from {self.target.display_name}" \
-                                        f" have been purged from {self.ctx.channel.name}```"
-        await self.message.edit(embed=self.embed)
-        await self.message.clear_reactions()
-        await self.stop()
+            await self.ctx.channel.purge(limit=self.limit, check=check)
+            self.embed.colour = discord.Color.green()
+            self.embed.title = f"**DONE :-)**"
+            self.embed.description = f"```dif\nThe Amount of {self.limit} messages have been purged from" \
+                                     f" {self.ctx.channel.name}```" \
+                if self.target is None else f"```dif\nThe Amount of {self.limit} messages from {self.target.display_name}" \
+                                            f" have been purged from {self.ctx.channel.name}```"
+            await self.message.edit(embed=self.embed,
+                                    components=[Button(label="Approved", style=ButtonStyle.gray, disabled=True)])
+            await self.message.clear_reactions()
+        elif respond.component.label == "Reject":
+            await self.message.clear_reactions()
+            self.embed.title = "Rejected"
+            self.embed.description = "```css\n [Clear Menu Canceled]```"
+            self.embed.colour = discord.Color.blurple()
+            await self.message.edit(embed=self.embed,
+                                    components=[Button(label="Rejected", style=ButtonStyle.gray, disabled=True)])
+        return None
 
-    @menus.button("❌")
-    async def on_reject(self, payload):
-        await self.message.clear_reactions()
-        self.embed.title = "```css\n[Clear Menu Canceled]```"
-        self.embed.description = ""
-        self.embed.colour = discord.Color.blurple()
-        await self.message.edit(embed=self.embed)
-        await self.stop()
+
+class DefaultEmbed(object):
+    """
+    a DefaultEmbed object cause im lazy as fuck :/
+    """
+
+    def __init__(self, commandName: str, ctx: commands.Context):
+        self.footer = f"Used at {ctx.message.created_at.strftime('%H:%M:%S')} by 🔹{ctx.author.display_name}🔹"
+        self.footer_icon = ctx.author.avatar_url
+        self.header = f"{commandName} Command"
+        self.header_url = ctx.message.jump_url
+
+    @classmethod
+    def close(self):
+        """
+            returns a predefined Embed obeject for when a menu is closed
+            :return:
+            """
+        return discord.Embed(title="", description="```css\nThis [Menu] has been [Closed]❌```",
+                             colour=discord.Color.red())
+
+
+class BotConfig(object):
+    """
+    Bot Config Object
+    """
+
+    def __init__(self, PATH: str):
+        self.PATH = PATH
+        self.operator_id = 0
+        self.token = ""
+        self.version = ""
+        self.name = ""
+        self.prefix = ""
+        self.gif_apikey = ""
+        self.slashguilds = []
+        self.globalcounter = 0
+        self.data = None
+
+    def Load(self):
+        """
+        Loads The bots config to the BotConfig Object from the specified PATH.
+        """
+        with open(self.PATH, "r") as file:
+            self.data = json.load(file)
+            self.operator_id = self.data["moderator"]
+            self.token = self.data["token"]
+            self.prefix = self.data["prefix"]
+            self.name = self.data["name"]
+            self.gif_apikey = self.data["gif_api"]
+            self.version = self.data["version"]
+            self.slashguilds = self.data["slashguilds"]
+            self.globalcounter = self.data["globalcounter"]
+
+    def update(self, section: str, value):
+        self.data[section] = value
+        self.__setattr__(section, value)
+        with open(self.PATH, "w") as file:
+            file.write(json.dumps(self.data))
 
 
 class HexConvertor():
@@ -232,48 +333,6 @@ class HexConvertor():
             return "ERROR | Input was not a HexoDecimal Value!"
 
 
-class DefaultEmbed(object):
-    """
-    a DefaultEmbed object cause im lazy as fuck :/
-    """
-
-    def __init__(self, commandName: str, ctx: commands.Context):
-        self.footer = f"Used at {ctx.message.created_at.strftime('%H:%M:%S')} by 🔹{ctx.author.display_name}🔹"
-        self.footer_icon = ctx.author.avatar_url
-        self.header = f"{commandName} Command"
-        self.header_url = ctx.message.jump_url
-
-
-class BotConfig(object):
-    """
-    Bot Config Object
-    """
-
-    def __init__(self, PATH: str):
-        self.PATH = PATH
-        self.operator_id = 0
-        self.token = ""
-        self.version = ""
-        self.name = ""
-        self.prefix = ""
-        self.gif_apikey = ""
-        self.slashguilds = []
-
-    def Load(self):
-        """
-        Loads The bots config to the BotConfig Object from the specified PATH.
-        """
-        with open(self.PATH, "r") as file:
-            data = json.load(file)
-            self.operator_id = data["moderator"]
-            self.token = data["token"]
-            self.prefix = data["prefix"]
-            self.name = data["name"]
-            self.gif_apikey = data["gif_api"]
-            self.version = data["version"]
-            self.slashguilds = data["slashguilds"]
-
-
 class HexMenu(menus.Menu):
     """
     Default Hexadecimal Menu for {Prefix}Hex
@@ -285,50 +344,51 @@ class HexMenu(menus.Menu):
 
     async def send_initial_message(self, ctx: commands.Context, channel: discord.TextChannel):
         embeddf = DefaultEmbed("HEX", ctx)
-        embed = discord.Embed(title="**What do you want to do?**", description="1️⃣- `Text To Hex`\n2️⃣- `Hex to Text`"
-                                                                               "\n❌- `Close The Menu`",
+        embed = discord.Embed(title="**What do you want to do?**", description="```css\n[Choose your option]```",
                               colour=discord.Color.random())
         embed.set_footer(text=embeddf.footer, icon_url=embeddf.footer_icon)
         embed.set_author(name=embeddf.header, url=embeddf.header_url)
         self.embed = embed
-        return await channel.send(embed=embed)
-
-    @menus.button("1️⃣")
-    async def on_selection_text_to_hex(self, payload):
-        await self.message.clear_reactions()
-        self.embed.description = "**Send the text that you want to `Hexlify` in this channel!**"
-        self.embed.title = "**Text To Hex** Selected"
-        self.embed.colour = discord.Color.red()
-        await self.message.edit(embed=self.embed)
-        text = await self.bot.wait_for('message', timeout=15, check=lambda message: message.author == self.ctx.author)
-        self.embed.title = "`Your Hexlified Text is`**:**"
-        self.embed.description = f"```fix\n{HexConvertor.to_hex(text.content)}```"
-        self.embed.add_field(name="`Your Input Value`**:**", value=f"```css\n[{text.content}]```")
-        self.embed.colour = discord.Color.green()
-        await self.message.edit(embed=self.embed)
-        await self.message.clear_reactions()
-        await text.delete()
-        await self.stop()
-
-    @menus.button("2️⃣")
-    async def on_selection_hex_to_text(self, payload):
-        await self.message.clear_reactions()
-        self.embed.description = "**Send the Hexadecimal Value you want to `UnHexlify` in this channel!**"
-        self.embed.title = "**Hex To Text** Selected"
-        self.embed.colour = discord.Color.red()
-        await self.message.edit(embed=self.embed)
-        text = await self.bot.wait_for('message', timeout=15, check=lambda message: message.author == self.ctx.author)
-        self.embed.title = "`Your UnHexlified Text is`**:**"
-        self.embed.description = f"```fix\n{HexConvertor.from_hex(text.content)}```"
-        self.embed.add_field(name="`Your Input Value`**:**", value=f"```css\n[{text.content}]```")
-        self.embed.colour = discord.Color.green()
-        await self.message.edit(embed=self.embed)
-        await text.delete()
-        await self.stop()
-
-    @menus.button("❌")
-    async def on_selection_exit(self, payload):
-        await self.message.edit(content="```css\n[Menu Closed, Have a nice day! :)]```", embed=None, delete_after=7)
-        await self.message.clear_reactions()
-        await self.ctx.message.delete()
-        await self.stop()
+        self.message = await channel.send(embed=embed, components=[
+            [Button(label="To Hex", style=ButtonStyle.green),
+             Button(label="To ASCII", style=ButtonStyle.green),
+             Button(label="Exit", style=ButtonStyle.gray)]])
+        try:
+            respond = await self.bot.wait_for("button_click", check=lambda i: i.user == self.ctx.author, timeout=20)
+            await respond.respond(type=6)
+            if respond.component.label == "To Hex":
+                self.embed.description = "**Send the text that you want to `Hexlify` in this channel!**"
+                self.embed.title = "**Text To Hex** Selected"
+                self.embed.colour = discord.Color.red()
+                await self.message.edit(embed=self.embed, components=[])
+                text = await self.bot.wait_for('message', timeout=15,
+                                               check=lambda message: message.author == self.ctx.author)
+                self.embed.title = "`Your Hexlified Text is`**:**"
+                self.embed.description = f"```fix\n{HexConvertor.to_hex(text.content)}```"
+                self.embed.add_field(name="`Your Input Value`**:**", value=f"```css\n[{text.content}]```")
+                self.embed.colour = discord.Color.green()
+                await self.message.edit(embed=self.embed)
+                await self.message.clear_reactions()
+                await text.delete()
+            elif respond.component.label == "To ASCII":
+                self.embed.description = "**Send the Hexadecimal Value you want to `UnHexlify` in this channel!**"
+                self.embed.title = "**Hex To Text** Selected"
+                self.embed.colour = discord.Color.red()
+                await self.message.edit(embed=self.embed, components=[])
+                text = await self.bot.wait_for('message', timeout=15,
+                                               check=lambda message: message.author == self.ctx.author)
+                self.embed.title = "`Your UnHexlified Text is`**:**"
+                self.embed.description = f"```fix\n{HexConvertor.from_hex(text.content)}```"
+                self.embed.add_field(name="`Your Input Value`**:**", value=f"```css\n[{text.content}]```")
+                self.embed.colour = discord.Color.green()
+                await self.message.edit(embed=self.embed)
+                await text.delete()
+            elif respond.component.label == "Exit":
+                await self.message.edit(components=[], embed=DefaultEmbed.close(),
+                                        delete_after=7)
+                await self.ctx.message.delete()
+            return None
+        except TimeoutError:
+            await self.message.delete()
+            await self.ctx.message.delete()
+            raise TimeoutError()

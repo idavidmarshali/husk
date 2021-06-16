@@ -1,2 +1,4 @@
-/.idea
 /.git
+/cogs/personal.py
+/cogs/games.py
+/sdk/test.py

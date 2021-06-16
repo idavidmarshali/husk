@@ -4,11 +4,7 @@ from discord_slash.utils.manage_commands import create_option, create_choice
 from discord_slash import cog_ext, SlashContext
 from sdk import husk_sdk
 
-config = husk_sdk.BotConfig("./bot.json")
-config.Load()
-
-guild_ids = config.slashguilds
-
+guild_ids = []
 
 class SlashCommands(commands.Cog):
     def __init__(self, bot):
@@ -20,7 +16,7 @@ class SlashCommands(commands.Cog):
                        guild_ids=guild_ids)
     async def s_gif(self, ctx: SlashContext, category: str):
         first_msg = await ctx.send('**Retriving data**')
-        apikey = config.gif_apikey
+        apikey = self.bot.config.gif_apikey
         lmt = 50
         try:
             r = requests.get("https://api.tenor.com/v1/search?q=%s&key=%s&limit=%s" % (category, apikey, lmt))
@@ -64,7 +60,7 @@ class SlashCommands(commands.Cog):
                                       if user is None else f"```dif\nThe Amount of {amount} messages from {user.display_name}" \
                                                            f" have been purged from {ctx.channel.name}```")
             embed.set_footer(text=f"Used by 🔹{ctx.author.display_name}🔹"
-                             , icon_url=ctx.author.avatar.url)
+                             , icon_url=ctx.author.avatar_url)
             await ctx.send(embed=embed)
 
     @cog_ext.cog_slash(name="moveall", description="Moves all the members in a server, to authors VoiceChannel!",
@@ -82,7 +78,7 @@ class SlashCommands(commands.Cog):
                               description="**__Moved Members__**:\n" +
                                           "\n".join([member.mention for member in moved]), color=discord.Color.random()) \
             .set_footer(text=f"Used by 🔹{ctx.author.display_name}🔹",
-                        icon_url=ctx.author.avatar.url) if moved != [] else \
+                        icon_url=ctx.author.avatar_url) if moved != [] else \
             discord.Embed(title=f"**Moveall command**", description="**🚫 No one is in other VoiceChannels!**",
                           color=discord.Color.red())
         await ctx.send(embed=embed, delete_after=None if moved != [] else 10)
@@ -99,7 +95,7 @@ class SlashCommands(commands.Cog):
                               description="**__Muted Members__**:\n" +
                                           "\n".join([member.mention for member in muted]), color=discord.Color.random()) \
             .set_footer(text=f"Used by 🔹{ctx.author.display_name}🔹",
-                        icon_url=ctx.author.avatar.url) if muted != [] else \
+                        icon_url=ctx.author.avatar_url) if muted != [] else \
             discord.Embed(title=f"**Muteall command**", description="**🚫 No one is in this VoiceChannel except you!**",
                           color=discord.Color.red())
         await ctx.send(embed=embed, delete_after=None if muted != [] else 10)
@@ -117,7 +113,7 @@ class SlashCommands(commands.Cog):
                                           "\n".join([member.mention for member in unmuted]),
                               color=discord.Color.random()) \
             .set_footer(text=f"Used by 🔹{ctx.author.display_name}🔹",
-                        icon_url=ctx.author.avatar.url) if unmuted != [] else \
+                        icon_url=ctx.author.avatar_url) if unmuted != [] else \
             discord.Embed(title=f"**UnMuteall command**",
                           description="**🚫 No one is in this VoiceChannel except you!**",
                           color=discord.Color.red())
@@ -140,7 +136,7 @@ class SlashCommands(commands.Cog):
 
         embed.set_thumbnail(url=user.avatar.url)
         embed.set_footer(text=f"Used by 🔹{ctx.author.display_name}🔹",
-                         icon_url=ctx.author.avatar.url)
+                         icon_url=ctx.author.avatar_url)
         embed.add_field(name="`Account Specific Detail`**:**",
                         value=f"""```Account Created in : {user.created_at.strftime('%Y-%m-%d')}
 Animated Profile Avatar? : {'Yes' if user.avatar.is_animated() else 'No'}
@@ -189,5 +185,7 @@ is Server Owner : {'Yes' if member == ctx.guild.owner else 'No'}
         else:
             await ctx.send(f'**REDDIT ERROR** | `🚫` `{r.json()}`')
 def setup(bot):
+    global guild_ids
     bot.add_cog(SlashCommands(bot))
+    guild_ids = bot.config.slashguilds
     print('slashcommands.py loaded')

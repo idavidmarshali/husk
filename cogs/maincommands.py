@@ -3,9 +3,8 @@ from discord.ext import commands
 from sdk import husk_sdk
 
 t = time.strftime('%H:%M:%S', time.localtime())
-config = husk_sdk.BotConfig("./bot.json")
-config.Load()
 
+config = husk_sdk.BotConfig("")
 
 class MainCommands(commands.Cog):
     def __init__(self, bot):
@@ -263,6 +262,10 @@ is Server Owner : {'Yes' if member == ctx.guild.owner else 'No'}
                               colour=discord.Color.random())
         embed.set_footer(text=embeddf.footer, icon_url=embeddf.footer_icon)
         await ctx.send(embed=embed)
+
+
 def setup(bot):
+    global config
+    config = bot.config
     bot.add_cog(MainCommands(bot))
     print('maincommands.py loaded')

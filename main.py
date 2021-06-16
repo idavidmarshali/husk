@@ -4,16 +4,23 @@ import discord.utils, discord, os
 from sdk import husk_sdk
 import async_cleverbot as ac
 from discord_slash import SlashCommand
+from discord_components import DiscordComponents, Button
+from discord_slash.utils.manage_commands import create_choice,create_option
+from discord_slash.utils import manage_commands
 
 config = husk_sdk.BotConfig("bot.json")
 config.Load()
 intents = discord.Intents().all()
-prefix = '!!'
+prefix = config.prefix
 status = cycle([f'{prefix}help', f'Version 2.0 Is Up', f'{prefix}Update to see it!',
                 'Im UPDATED, Yaaaay!', 'slash commands are here!!'])
 bot = commands.Bot(command_prefix=prefix, intents=intents, case_insensitive=True,
                    help_command=husk_sdk.HelpCommand())
-slash = SlashCommand(bot, sync_commands=True, sync_on_cog_reload=True)
+bot.__setattr__("config", config)
+slash = SlashCommand(bot, sync_commands=True)
+def getbot():
+    return bot
+
 moods = {
     "joy": ac.Emotion.joy,
     "anger": ac.Emotion.anger,
@@ -32,6 +39,7 @@ mood = moods["normal"]
 @bot.event
 async def on_ready():
     status_update.start()
+    DiscordComponents(bot)
     print('The bot has logged in as {0.user}\n-------------------↴'.format(bot))
 
 
@@ -48,12 +56,12 @@ async def on_message(message):
 #####################
 
 @bot.event
-async def on_command_error(message: discord.message, error):
+async def on_command_error(ctx: commands.Context, error):
     error = getattr(error, 'original', error)
     if isinstance(error, commands.CommandNotFound):
-        await message.send(f"**ERROR** | `🚫` `Command Not Found, Use {prefix}help to see the bots commands`",
+        await ctx.send(f"**ERROR** | `🚫` `Command Not Found, Use {prefix}help to see the bots commands`",
                            delete_after=3)
-        await message.message.delete()
+        await ctx.message.delete()
     else:
         errorlist = [commands.MissingPermissions,
                      commands.MissingRequiredArgument,
@@ -65,24 +73,10 @@ async def on_command_error(message: discord.message, error):
                      commands.NotOwner]
         for er in errorlist:
             if isinstance(error, er):
-                await message.send(f"**ERROR** | `🚫` `{error}`", delete_after=3)
-                await message.message.delete()
+                await ctx.send(f"**ERROR** | `🚫` `{error}`", delete_after=3)
+                await ctx.message.delete()
                 return
     print("ERROR:" + str(error))
-
-
-@bot.event
-async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
-    role = payload.member.guild.get_role(807001981989814302)
-    await payload.member.add_roles(role) if payload.message_id == 823641191567327235 else "x"
-
-
-@bot.event
-async def on_raw_reaction_remove(payload: discord.RawReactionActionEvent):
-    guild: discord.Guild = bot.get_guild(payload.guild_id)
-    member: discord.Member = guild.get_member(payload.user_id)
-    role: discord.Role = guild.get_role(807001981989814302)
-    await member.remove_roles(role) if payload.message_id == 823641191567327235 else "x"
 
 
 # COMMAND ZONE ----------↴
