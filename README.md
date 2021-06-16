@@ -25,7 +25,10 @@ bot.__setattr__("config", config)
 > (M) there is no `husk_sdk.default_close()` any more, its moved and renamed to `husk_sdk.DefaultEmbed.close()`
 
 > (M) `[HelpMenu, ClMenu, HexMenu]` are now button component based and they no longer operate on emojies and reactions
-
+-----------
+**BUG Fixes:**
+> the clear menu was bugged if you used the exit button, thats fixed as of another menu.
+> and some other minor bug fixes
  
 #### these are not all the changes tho i dont remember everything that i changed :/ , thats it for this update, the next one will contain some `GAMES` for people to play in discord including a pokemon game
 if you look into the .gitignore file, youll see the games.py part, so stay tuned ;)
